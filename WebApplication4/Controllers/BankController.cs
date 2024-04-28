@@ -14,7 +14,7 @@ namespace WebApplication4.Controllers
         {
             _context = context;
         }
-
+        /*
         [HttpGet]
         public List<BankBranchResponce> GetAll()
         {
@@ -27,7 +27,34 @@ namespace WebApplication4.Controllers
 
             }).ToList();
         }
+        */
 
+        [HttpGet]
+        public IActionResult GetAll(string filter = "", int pageNumber = 1, int pageSize = 10)
+        {
+            IQueryable<BankBranch> bankBranches = _context.BankBranches;
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                bankBranches = bankBranches.Where(b => b.Name.Contains(filter) || b.Location.Contains(filter));
+            }
+
+            var pagedBankBranches = bankBranches.OrderBy(b => b.Name)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var result = pagedBankBranches.Select(b => new BankBranchResponce
+            {
+                BranchManager = b.BranchManager,
+                Location = b.Location,
+                Name = b.Name,
+                EmployeeCount = b.EmployeeCount,
+
+            }).ToList();
+
+            int totalCount = bankBranches.Count();
+            return Ok(new { result, totalCount });
+        }
         [HttpPost]
         public IActionResult AddBankRequest(AddBankRequest req)
         {
