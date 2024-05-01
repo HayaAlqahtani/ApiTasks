@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Models;
 using WebApplication4.Models;
 
@@ -14,21 +16,7 @@ namespace WebApplication4.Controllers
         {
             _context = context;
         }
-        /*
-        [HttpGet]
-        public List<BankBranchResponce> GetAll()
-        {
-            return _context.BankBranches.Select(b => new BankBranchResponce
-            {
-                BranchManager = b.BranchManager,
-                Location = b.Location,
-                Name = b.Name,
-                EmployeeCount = b.EmployeeCount,
-
-            }).ToList();
-        }
-        */
-
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult GetAll(string filter = "", int pageNumber = 1, int pageSize = 10)
         {
@@ -55,6 +43,8 @@ namespace WebApplication4.Controllers
             int totalCount = bankBranches.Count();
             return Ok(new { result, totalCount });
         }
+    
+
         [HttpPost]
         public IActionResult AddBankRequest(AddBankRequest req)
         {
@@ -69,6 +59,7 @@ namespace WebApplication4.Controllers
             return Created();
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public ActionResult<BankBranchResponce> Details(int id)
         {
@@ -105,6 +96,8 @@ namespace WebApplication4.Controllers
 
         }
 
+
+       // [Authorize(Role = "admin")]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
